@@ -4,10 +4,14 @@ const nodemailer = require('nodemailer');
 const RigsterModel = require('../Models/RigsterModel');
 
 function generateOTP() {
+
+    // Declare a digits variable 
+    // which stores all digits  
     let digits = '0123456789';
     let OTP = '';
-    for (let i = 0; i < 6; i++) {
-        OTP += digits[Math.floor(Math.random() * digits.length)];
+    let len = digits.length
+    for (let i = 0; i < 4; i++) {
+        OTP += digits[Math.floor(Math.random() * len)];
     }
     return OTP;
 }
