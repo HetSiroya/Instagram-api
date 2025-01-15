@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../Models/User');
 const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken')
 const RigsterModel = require('../Models/RigsterModel');
 
 function generateOTP() {
@@ -15,6 +16,20 @@ function generateOTP() {
     }
     return OTP;
 }
+function generatetoken(user) {
+    const playload = {
+        id: user._id,
+        email: user.email,
+        otp: user.otplogin,
+        bio: user.bio,
+        gender: user.gender,
+        username: user.username
+    }
+    let jwtScecrte = process.env.JWT_SECRET_KEY;
+    const token = jwt.sign(playload, jwtScecrte)
+    return token
+}
+
 const exOTP = generateOTP()
 const otp = exOTP.toString()
 exports.registerpost = async (req, res) => {
@@ -58,15 +73,12 @@ exports.registerpost = async (req, res) => {
     catch (error) {
         res.status(500).send(error.message)
     }
-
-
-
-
 }
 exports.users = async (req, res) => {
     try {
         const { name, email, otplogin, bio, gender, username } = req.body;
         const login = new User({ name, email, otplogin, bio, gender, username });
+
         const user = await RigsterModel.findOne({ email: email, otp: otplogin });
         if (!user) {
             return res.status(404).json({ message: 'Wrong OTP' });
@@ -76,13 +88,17 @@ exports.users = async (req, res) => {
         if (!otpRecord) return res.status(404).json({ status: false, message: 'OTP not found', data: {} });
         if (otpRecord.otp !== otplogin) return res.status(400).json({ status: false, message: 'Invalid OTP', data: {} });
 
+        const token = generatetoken(login)
+
+
         await login.save();
         await otpRecord.deleteOne(); // Now `otpRecord` has the `deleteOne` method.
 
         return res.status(200).json({
             status: true,
             message: 'User registered successfully',
-            data: login
+            data: login,
+            token: token
         });
     } catch (error) {
         res.status(500).send(error.message);
