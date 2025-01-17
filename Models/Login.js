@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { users } = require('../Controllers/RegisterAuth');
 
-const User = new mongoose.Schema({
+const login = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -29,4 +29,4 @@ const User = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('users', User);   
+module.exports = mongoose.model('Login', login);   

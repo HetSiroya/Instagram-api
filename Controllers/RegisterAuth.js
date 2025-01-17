@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
-const User = require('../Models/User');
+// const User = require('../Models/Login');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken')
 const RigsterModel = require('../Models/RigsterModel');
+const Login = require('../Models/Login');
 
 function generateOTP() {
 
@@ -77,7 +78,7 @@ exports.registerpost = async (req, res) => {
 exports.users = async (req, res) => {
     try {
         const { name, email, otplogin, bio, gender, username } = req.body;
-        const login = new User({ name, email, otplogin, bio, gender, username });
+        const login = new Login({ name, email, otplogin, bio, gender, username });
 
         const user = await RigsterModel.findOne({ email: email, otp: otplogin });
         if (!user) {
