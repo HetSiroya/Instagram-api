@@ -24,7 +24,10 @@ function generatetoken(user) {
         otp: user.otplogin,
         bio: user.bio,
         gender: user.gender,
-        username: user.username
+        username: user.username,
+        Mobilenumber: user.Mobilenumber,
+        password: user.password
+
     }
     let jwtScecrte = process.env.JWT_SECRET_KEY;
     const token = jwt.sign(playload, jwtScecrte)
@@ -57,13 +60,13 @@ exports.registerpost = async (req, res) => {
             Otp:${otp}`
         };
         // console.log(mailOptions);
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent: ' + info.response);
-            }
-        });
+        // transporter.sendMail(mailOptions, function (error, info) {
+        //     if (error) {
+        //         console.log(error);
+        //     } else {
+        //         console.log('Email sent: ' + info.response);
+        //     }
+        // });
         rigster.save();
         return res.status(200).json({
             status: true,
@@ -75,16 +78,15 @@ exports.registerpost = async (req, res) => {
         res.status(500).send(error.message)
     }
 }
-exports.users = async (req, res) => {
+exports.Login = async (req, res) => {
     try {
-        const { name, email, otplogin, bio, gender, username } = req.body;
-        const login = new Login({ name, email, otplogin, bio, gender, username });
+        const { name, email, otplogin, bio, gender, username, Mobilenumber, password } = req.body;
+        const login = new Login({ name, email, otplogin, bio, gender, username, Mobilenumber, password });
 
         const user = await RigsterModel.findOne({ email: email, otp: otplogin });
         if (!user) {
             return res.status(404).json({ message: 'Wrong OTP' });
         }
-
         const otpRecord = await RigsterModel.findOne({ email }); // Removed `.lean()`
         if (!otpRecord) return res.status(404).json({ status: false, message: 'OTP not found', data: {} });
         if (otpRecord.otp !== otplogin) return res.status(400).json({ status: false, message: 'Invalid OTP', data: {} });

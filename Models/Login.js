@@ -23,6 +23,14 @@ const login = new mongoose.Schema({
         required: true,
         unique: true
     },
+    Mobilenumber: {
+        type: Number,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
     otplogin: {
         type: String,
         required: true
