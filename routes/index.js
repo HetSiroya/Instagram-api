@@ -3,6 +3,7 @@ var router = express.Router();
 const Rigster = require('./Rigster')
 const GetData = require('./GetData');
 const updatedata = require('./Updatedata');
+const { changePassword } = require('../Controllers/RegisterAuth');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -13,6 +14,7 @@ router.get('/', function (req, res, next) {
 router.use('/auth', Rigster)
 router.use('/get', GetData)
 router.use('/update', updatedata)
+
 
 
 module.exports = router;

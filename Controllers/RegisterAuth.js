@@ -105,10 +105,12 @@ exports.Login = async (req, res) => {
         const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
         const user = await Users.findOne(query).lean();
         console.log("user", user);
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("isMatch", isMatch);
         if (!user) {
             return res.status(400).send({ message: "Invalid Credentials" });
         }
-        if (user.password !== password) {
+        if (!isMatch) {
             return res.status(400).send({ message: "Invalid Password" });
         }
 
@@ -127,9 +129,27 @@ exports.changePassword = async (req, res) => {
         if (!token) {
             return res.status(400).json({ status: false, message: 'Token missing', data: {} });
         }
+        if (!req.body.password || !req.body.newpassword) {
+            return res.status(400).json({ status: false, message: 'Password and new password are required', data: {} });
+        }
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        res.status(200).json({ status: true, message: 'Token verified', data: decoded });
-    } catch (error) {
+        const { password, newpassword } = req.body;
+        const user = await Users.findById(decoded.id).lean();
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(400).json({ status: false, message: 'Invalid Password', data: {} });
+        }
+        const hashedPassword = await bcrypt.hash(newpassword, 10);
+        await Users.findByIdAndUpdate(decoded.id, { password: hashedPassword });
+        const data = await Users.findById(decoded.id);
+        // console.log("data", data);
+        const tokenh = generatetoken(data);
+        return res.status(200).json({ status: true, message: 'Password changed successfully', data: data, token: tokenh });
+
+    }
+    catch (error) {
         console.error("Error decoding token:", error.message);
         return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
     }
