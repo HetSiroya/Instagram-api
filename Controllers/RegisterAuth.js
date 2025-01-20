@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken')
 const RigsterModel = require('../Models/RigsterModel');
 const Login = require('../Models/Login');
+const generatetoken = require('../Helpers/tokens');
 
 function generateOTP() {
 
@@ -17,21 +18,21 @@ function generateOTP() {
     }
     return OTP;
 }
-function generatetoken(user) {
-    const playload = {
-        id: user._id,
-        email: user.email,
-        otp: user.otplogin,
-        bio: user.bio,
-        gender: user.gender,
-        username: user.username,
-        Mobilenumber: user.Mobilenumber,
-        password: user.password
-    }
-    let jwtScecrte = process.env.JWT_SECRET_KEY;
-    const token = jwt.sign(playload, jwtScecrte)
-    return token
-}
+// function generatetoken(user) {
+//     const playload = {
+//         id: user._id,
+//         email: user.email,
+//         otp: user.otplogin,
+//         bio: user.bio,
+//         gender: user.gender,
+//         username: user.username,
+//         Mobilenumber: user.Mobilenumber,
+//         password: user.password
+//     }
+//     let jwtScecrte = process.env.JWT_SECRET_KEY;
+//     const token = jwt.sign(playload, jwtScecrte)
+//     return token
+// }
 
 const exOTP = generateOTP()
 const otp = exOTP.toString()
