@@ -13,11 +13,11 @@ exports.getdata = async (req, res) => {
         if (!token) {
             return res.status(400).json({ status: false, message: 'Token missing', data: {} });
         }
-        console.log("Token:", token);
+        // console.log("Token:", token);
         // Decode the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         // Log the decoded payload as a string for readability
-        console.log("Decoded:", JSON.stringify(decoded));
+        // console.log("Decoded:", JSON.stringify(decoded));
         // Proceed with further logic
         res.status(200).json({ status: true, message: 'Token verified', data: decoded });
     } catch (error) {
