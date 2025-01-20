@@ -30,10 +30,6 @@ const Users = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
-    otplogin: {
-        type: String,
-        required: true
     }
 })
 

@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken')
 const RigsterModel = require('../Models/RigsterModel');
-const Login = require('../Models/Users');
+// const Login = require('../Models/Users');
+const Users = require('../Models/Users');
 const generatetoken = require('../Helpers/tokens');
 
 function generateOTP() {
@@ -80,7 +81,7 @@ exports.registerpost = async (req, res) => {
 exports.Users = async (req, res) => {
     try {
         const { name, email, otplogin, bio, gender, username, Mobilenumber, password } = req.body;
-        const login = new Login({ name, email, otplogin, bio, gender, username, Mobilenumber, password });
+        const login = new Users({ name, email, bio, gender, username, Mobilenumber, password });
 
         const user = await RigsterModel.findOne({ email: email, otp: otplogin });
         if (!user) {
@@ -104,5 +105,36 @@ exports.Users = async (req, res) => {
         });
     } catch (error) {
         res.status(500).send(error.message);
+    }
+};
+
+
+exports.Login = async (req, res) => {
+    try {
+        const { input, password } = req.body;
+
+
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+        const isMobileNumber = /^\d+$/.test(input);
+
+
+        const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
+
+        const user = await Users.findOne(query).lean();
+        console.log("user", user);
+
+        if (!user) {
+            return res.status(400).send({ message: "Invalid Credentials" });
+        }
+        if (user.password !== password) {
+            return res.status(400).send({ message: "Invalid Password" });
+        }
+
+        // Generate token
+        const token = generatetoken(user);
+        res.status(200).send({ message: "Login Successful", token });
+    } catch (error) {
+        console.error("Error during login:", error.message);
+        return res.status(500).json({ status: false, message: 'An error occurred', data: {} });
     }
 };

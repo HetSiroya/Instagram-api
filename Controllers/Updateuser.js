@@ -18,12 +18,15 @@ exports.updatedata = async (req, res) => {
         console.log("id", decoded.id);
         // Update the user data
         try {
-            const updatedUser = await User.findByIdAndUpdate(decoded.id, req.body, { new: true });
+            const { name, email, bio, gender, username, Mobilenumber, password } = req.body;
+            const updatedata = { name, email, bio, gender, username, Mobilenumber, password };
+
+            const updatedUser = await User.findByIdAndUpdate(decoded.id, updatedata, { new: true });
             if (!updatedUser) {
                 return res.status(404).json({ status: false, message: 'User not found', data: {} });
             }
             const token = generatetoken(updatedUser)
-            res.status(200).json({ status: true, message: 'User data updated successfully', data: updatedUser });
+            res.status(200).json({ status: true, message: 'User data updated successfully', data: updatedUser, token: token });
         } catch (error) {
             console.error("Error updating user data:", error.message);
             return res.status(500).json({ status: false, message: 'Error updating user data', data: {} });
