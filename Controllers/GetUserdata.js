@@ -1,4 +1,4 @@
-const Userdata = require('../Models/Login')
+const Userdata = require('../Models/Users')
 const jwt = require('jsonwebtoken');
 const jwtDecode = require('jwt-decode');
 const express = require('express');

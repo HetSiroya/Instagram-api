@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken')
 const RigsterModel = require('../Models/RigsterModel');
-const Login = require('../Models/Login');
+const Login = require('../Models/Users');
 const generatetoken = require('../Helpers/tokens');
 
 function generateOTP() {
@@ -77,7 +77,7 @@ exports.registerpost = async (req, res) => {
         res.status(500).send(error.message)
     }
 }
-exports.Login = async (req, res) => {
+exports.Users = async (req, res) => {
     try {
         const { name, email, otplogin, bio, gender, username, Mobilenumber, password } = req.body;
         const login = new Login({ name, email, otplogin, bio, gender, username, Mobilenumber, password });

@@ -1,6 +1,6 @@
 const express = require('express');
 // const jwt = require('jsonwebtoken');
-const User = require('../Models/Login');
+const User = require('../Models/Users');
 const jwt = require('jsonwebtoken')
 const generatetoken = require('../Helpers/tokens');
 
