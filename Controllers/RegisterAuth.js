@@ -154,3 +154,31 @@ exports.changePassword = async (req, res) => {
         return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
     }
 }
+
+
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { input, password, confirm } = req.body;
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+        const isMobileNumber = /^\d+$/.test(input);
+        const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
+        const user = await Users.findOne(query).lean();
+        console.log("user", user);
+
+        if (!user) {
+            return res.status(400).send({ message: "Invalid Credentials" });
+        }
+        if (password !== confirm) {
+            return res.status(400).send({ message: "Passwords do not match" });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await Users.findByIdAndUpdate(user.id, { password: hashedPassword });
+        const data = await Users.findById(user._id);
+        const tokenh = generatetoken(data);
+        return res.status(200).json({ status: true, message: 'Password changed successfully', data: data, token: tokenh });
+    }
+    catch (error) {
+        res.status(500).send(error.message);
+    }
+}

@@ -16,5 +16,4 @@ router.use('/get', GetData)
 router.use('/update', updatedata)
 
 
-
 module.exports = router;
