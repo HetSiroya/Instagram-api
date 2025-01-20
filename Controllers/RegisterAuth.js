@@ -27,7 +27,6 @@ function generatetoken(user) {
         username: user.username,
         Mobilenumber: user.Mobilenumber,
         password: user.password
-
     }
     let jwtScecrte = process.env.JWT_SECRET_KEY;
     const token = jwt.sign(playload, jwtScecrte)
@@ -37,7 +36,6 @@ function generatetoken(user) {
 const exOTP = generateOTP()
 const otp = exOTP.toString()
 exports.registerpost = async (req, res) => {
-
     try {
         const { email } = req.body;
         const rigster = new RigsterModel({

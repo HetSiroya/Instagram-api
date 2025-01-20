@@ -1,13 +1,6 @@
-const Userdata = require('../Models/Login')
-const jwt = require('jsonwebtoken');
-const jwtDecode = require('jwt-decode');
 const express = require('express');
-
-const app = express();
-const router = express.Router();
-
-
-exports.getdata = async (req, res) => {
+const jwt = require('jsonwebtoken');
+exports.updatedata = async (req, res) => {
     try {
         const token = req.header('Authorization')?.split(' ')[1];
         if (!token) {
