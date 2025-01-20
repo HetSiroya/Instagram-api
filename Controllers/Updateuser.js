@@ -31,10 +31,6 @@ exports.updatedata = async (req, res) => {
             console.error("Error updating user data:", error.message);
             return res.status(500).json({ status: false, message: 'Error updating user data', data: {} });
         }
-
-
-        // Proceed with further logic
-        // res.status(200).json({ status: true, message: 'Token verified', data: decoded });
     } catch (error) {
         console.error("Error decoding token:", error.message);
         return res.status(400).json({ status: false, message: 'Invalid token', data: {} });

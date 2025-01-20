@@ -1,39 +1,25 @@
 const mongoose = require('mongoose');
-// const User = require('../Models/Login');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken')
 const RigsterModel = require('../Models/RigsterModel');
-// const Login = require('../Models/Users');
+const bcrypt = require('bcryptjs');
 const Users = require('../Models/Users');
 const generatetoken = require('../Helpers/tokens');
+const { generateOTP } = require('../Helpers/OTP');
 
-function generateOTP() {
 
-    // Declare a digits variable 
-    // which stores all digits  
-    let digits = '0123456789';
-    let OTP = '';
-    let len = digits.length
-    for (let i = 0; i < 4; i++) {
-        OTP += digits[Math.floor(Math.random() * len)];
-    }
-    return OTP;
-}
-// function generatetoken(user) {
-//     const playload = {
-//         id: user._id,
-//         email: user.email,
-//         otp: user.otplogin,
-//         bio: user.bio,
-//         gender: user.gender,
-//         username: user.username,
-//         Mobilenumber: user.Mobilenumber,
-//         password: user.password
+// function generateOTP() {
+
+
+//     let digits = '0123456789';
+//     let OTP = '';
+//     let len = digits.length
+//     for (let i = 0; i < 4; i++) {
+//         OTP += digits[Math.floor(Math.random() * len)];
 //     }
-//     let jwtScecrte = process.env.JWT_SECRET_KEY;
-//     const token = jwt.sign(playload, jwtScecrte)
-//     return token
+//     return OTP;
 // }
+
 
 const exOTP = generateOTP()
 const otp = exOTP.toString()
@@ -81,8 +67,10 @@ exports.registerpost = async (req, res) => {
 exports.Users = async (req, res) => {
     try {
         const { name, email, otplogin, bio, gender, username, Mobilenumber, password } = req.body;
-        const login = new Users({ name, email, bio, gender, username, Mobilenumber, password });
-
+        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log("hashedPassword", hashedPassword);
+        // const bcrypter = bcrypter(password);
+        const login = new Users({ name, email, bio, gender, username, Mobilenumber, password: hashedPassword });
         const user = await RigsterModel.findOne({ email: email, otp: otplogin });
         if (!user) {
             return res.status(404).json({ message: 'Wrong OTP' });
@@ -112,17 +100,11 @@ exports.Users = async (req, res) => {
 exports.Login = async (req, res) => {
     try {
         const { input, password } = req.body;
-
-
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
         const isMobileNumber = /^\d+$/.test(input);
-
-
         const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
-
         const user = await Users.findOne(query).lean();
         console.log("user", user);
-
         if (!user) {
             return res.status(400).send({ message: "Invalid Credentials" });
         }
@@ -138,3 +120,17 @@ exports.Login = async (req, res) => {
         return res.status(500).json({ status: false, message: 'An error occurred', data: {} });
     }
 };
+
+exports.changePassword = async (req, res) => {
+    try {
+        const token = req.header('Authorization')?.split(' ')[1];
+        if (!token) {
+            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        res.status(200).json({ status: true, message: 'Token verified', data: decoded });
+    } catch (error) {
+        console.error("Error decoding token:", error.message);
+        return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
+    }
+}
