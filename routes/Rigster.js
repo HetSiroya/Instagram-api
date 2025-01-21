@@ -1,7 +1,9 @@
 const express = require('express');
 const { registerpost, Login, Users, changePassword, forgotPassword } = require('../Controllers/RegisterAuth');
+// const { ImageUpload } = require('../Controllers/ImageUpload');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const app = require('../Controllers/ImageUpload');
 
 router.post('/register', registerpost)
 router.post('/Users', Users)
