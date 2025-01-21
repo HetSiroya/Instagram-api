@@ -80,8 +80,6 @@ exports.Users = async (req, res) => {
         if (otpRecord.otp !== otplogin) return res.status(400).json({ status: false, message: 'Invalid OTP', data: {} });
 
         const token = generatetoken(login)
-
-
         await login.save();
         await otpRecord.deleteOne(); // Now `otpRecord` has the `deleteOne` method.
 
@@ -134,11 +132,18 @@ exports.changePassword = async (req, res) => {
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const { password, newpassword } = req.body;
+
+        // const user = await Users.findById(decoded.id).lean();
+
+
         const user = await Users.findById(decoded.id).lean();
+        console.log("user", user.password);
+        console.log("user", user);
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("isMatch", isMatch);
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
 
-        if (!isPasswordValid) {
+        if (isMatch) {
             return res.status(400).json({ status: false, message: 'Invalid Password', data: {} });
         }
         const hashedPassword = await bcrypt.hash(newpassword, 10);
@@ -147,7 +152,6 @@ exports.changePassword = async (req, res) => {
         // console.log("data", data);
         const tokenh = generatetoken(data);
         return res.status(200).json({ status: true, message: 'Password changed successfully', data: data, token: tokenh });
-
     }
     catch (error) {
         console.error("Error decoding token:", error.message);
@@ -165,7 +169,6 @@ exports.forgotPassword = async (req, res) => {
         const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
         const user = await Users.findOne(query).lean();
         console.log("user", user);
-
         if (!user) {
             return res.status(400).send({ message: "Invalid Credentials" });
         }
