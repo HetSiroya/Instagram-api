@@ -1,13 +1,14 @@
 var express = require('express');
 var router = express.Router();
-
-const { ImageUpload } = require('../Controllers/ImageUpload');
+const multer = require('multer');
+const { uploadFile } = require('../Controllers/ImageUpload');
 
 
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+
+        cb(null, 'Uploads/');
     },
     filename: (req, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
@@ -17,4 +18,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-router.post('/upload', upload.single('file'), ImageUpload);
+router.post('/', upload.array('file'), uploadFile);
+
+module.exports = router;
