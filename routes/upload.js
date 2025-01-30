@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const multer = require('multer');
-const { uploadFile, deletepost } = require('../Controllers/ImageUpload');
+const { uploadFile, deletepost, getuserpost } = require('../Controllers/ImageUpload');
 const { postlike, deletepostlike } = require('../Controllers/Postlike');
 // const {  } = require('../Controllers/');
 
@@ -24,5 +24,6 @@ router.post('/', upload.array('file'), uploadFile);
 router.delete('/delete', deletepost)
 router.post('/postlike', postlike)
 router.delete('/deletepostlilke', deletepostlike)
+router.get('/getuserpost', getuserpost)
 
 module.exports = router;    
