@@ -17,11 +17,6 @@ const uploadFile = async (req, res) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        // decoded(req);
-
-        // console.log("decoded", decoded.id);
-
-        // Ensure `req.files` exists and is an array
         const files = req.files;
         if (!files || files.length === 0) {
             return res.status(400).json({ message: 'No files uploaded' });
@@ -58,7 +53,7 @@ const deletepost = async (req, res) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const id = req.query.id;
+        // const id = req.query.id;
         const deleteid = req.query.deleteid;
         // console.log("deleteid" + deleteid);
         // console.log(id);
@@ -66,14 +61,7 @@ const deletepost = async (req, res) => {
         console.log(post);
         // const deletepost = await file.findByIdAndDelete(id);
         post = post.files
-        const deletepost = await file.findByIdAndDelete(
-            // if(post == deleteid){
-            //     return deletepost;
-            // }
-            // else{
-            //     return null;
-            // }    
-        )
+        const deletepost = await file.findByIdAndDelete(deleteid)
         if (!post) {
             return res.status(404).json({ status: false, message: 'Post not found' });
         }
@@ -143,15 +131,6 @@ const getpostbyid = async (req, res) => {
 
 const getpostbyuserid = async (req, res) => {
     try {
-        // const token = req.header('Authorization')?.split(' ')[1];
-        // if (!token) {
-        //     return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        // }
-
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        // // decoded(req);
-
-        // console.log("decoded", decoded.id);
         const userId = req.query.userId
         const post = await file.find({ userId })
         if (!post) {

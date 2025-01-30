@@ -20,6 +20,10 @@ const fileSchema = new mongoose.Schema({
                 type: String,
                 required: true,
             },
+            like: {
+                type: Number,
+                default: 0,
+            },
             uploadedAt: {
                 type: Date,
                 default: Date.now,
