@@ -5,6 +5,7 @@ const file = require('../Models/file')
 const jwt = require('jsonwebtoken');
 const { find } = require('../Models/Users');
 // const decoded = require('../Middleware/decode');
+const Postlike = require('../Models/Postlike')
 
 // const user = require('../Models/Users');
 
@@ -85,6 +86,7 @@ const getuserpost = async (req, res) => {
         const userId = decoded.id;
         console.log("Decoded User ID:", userId);
         const post = await file.find({ userId });
+
         if (!post) {
             return res.status(404).json({ message: "User post not found" });
         }
@@ -105,6 +107,8 @@ const allposts = async (req, res) => {
         if (!posts) {
             return res.status(404).json({ message: 'No posts found' });
         }
+        // const likes = await Postlike.find({ postid })
+        // console.log(likes.length);
         return res.status(200).json({ status: true, message: 'Posts fetched successfully', data: posts });
     }
     catch (error) {

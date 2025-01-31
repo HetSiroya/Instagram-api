@@ -2,14 +2,16 @@ const express = require('express');
 // const router = express.Router();
 const app = express();
 const Users = require('../Models/Users');
-const File = require('../Models/file');
 const commentmodel = require('../Models/Commetsmodel');
 const jwt = require('jsonwebtoken');
+const file = require('../Models/file');
 
 
 exports.Postcomment = async (req, res, next) => {
     try {
-        const { comment, postId } = req.body;
+        const { comment, postid } = req.body;
+        console.log("PostI", postid);
+
         const token = req.header('Authorization')?.split(' ')[1];
         if (!token) {
             return res.status(400).json({ status: false, message: 'Token missing', data: {} });
@@ -22,7 +24,18 @@ exports.Postcomment = async (req, res, next) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const newCommet = new commentmodel({ comment, postid: postId, commentby: userId, commentbyUsername: user.name });
+        const commentcnt = await commentmodel.find({ postid })
+        console.log("commentcnt " + commentcnt);
+
+        // console.log(likes.length);
+
+        const commentCount = commentcnt.length;
+        // console.log("commentCount " + commentCount);
+
+        const postup = await file.findByIdAndUpdate(postid, { $inc: { Comments: commentCount } }, { new: true });
+        // console.log("Post after comment:", postup);
+        await postup.save();
+        const newCommet = new commentmodel({ comment, postid: postid, commentby: userId, commentbyUsername: user.name });
         await newCommet.save();
         return res.status(200).json({ status: true, message: 'Comment added successfully', data: newCommet });
 

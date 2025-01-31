@@ -20,16 +20,21 @@ const fileSchema = new mongoose.Schema({
                 type: String,
                 required: true,
             },
-            like: {
-                type: Number,
-                default: 0,
-            },
+
             uploadedAt: {
                 type: Date,
                 default: Date.now,
             }
         }
-    ]
+    ],
+    like: {
+        type: Number,
+        default: 1,
+    },
+    Comments: {
+        type: Number,
+        default: 0,
+    }
 });
 
 module.exports = mongoose.model('File', fileSchema);

@@ -5,7 +5,8 @@ const file = require('../Models/file');
 const jwt = require('jsonwebtoken');
 const Users = require('../Models/Users');
 const Postlike = require('../Models/Postlike');
-const { find } = require('../Models/RigsterModel');
+// const { find } = require('../Models/RigsterModel');
+// const file = require('../Models/file');
 
 
 exports.postlike = async (req, res) => {
@@ -25,14 +26,30 @@ exports.postlike = async (req, res) => {
         }
 
         const exitsingLike = await Postlike.findOne({ postid, likedBy: userId });
+        // Like Count
+        console.log("postid: " + postid);
+
+        const likes = await Postlike.find({ postid })
+        // console.log(likes.length);
+
+        const likeCount = likes.length;
+        // console.log("Like Count:", likeCount);
+
+
         if (exitsingLike) {
             return res
                 .status(400)
                 .json({ status: false, message: "Post Already Liked" });
         }
 
+        const postup = await file.findByIdAndUpdate(postid, { $inc: { like: likeCount } }, { new: true });
+        console.log("Post after like:", postup);
+        await postup.save();
+
+
         const newLike = new Postlike({ postid, likedBy: userId });
         await newLike.save();
+        // const file  = await file.find()
         return res.status(200).json({ status: true, message: 'Post liked successfully', data: newLike });
 
     } catch (error) {
