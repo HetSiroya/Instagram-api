@@ -81,15 +81,4 @@ exports.deletepostlike = async (req, res) => {
 };
 
 
-exports.like = async (req, res, next) => {
-
-    const like = Postlike.findById('6793776782a40a2633e88e54')
-    console.log("like", like);
-
-    try {
-        res.json(like);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-}
 
