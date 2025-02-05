@@ -10,7 +10,7 @@ const file = require('../Models/file');
 exports.Postcomment = async (req, res, next) => {
     try {
         const { comment, postid } = req.body;
-        console.log("PostI", postid);
+        console.log("PostId", postid);
 
         const token = req.header('Authorization')?.split(' ')[1];
         if (!token) {
@@ -46,6 +46,43 @@ exports.Postcomment = async (req, res, next) => {
     }
 }
 
+exports.likecommets = async (req, res) => {
+    try {
+        const commentId = req.query.commentId;
+        const token = req.header('Authorization')?.split(' ')[1];
+        if (!token) {
+            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const userId = decoded.id;
+        console.log("userId " + userId);
+        const user = await Users.findById(userId);
+        console.log("user " + user);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        // validate
+        const temp = await commentmodel.findById(commentId)
+        console.log("commentId " + temp);
+
+
+        // const comment = await commentmodel.findByIdAndUpdate(commentId, {
+        //     $inc: {
+        //         Commet_like: 1
+        //     }, $push: {
+        //         likedBy: userId
+        //     },
+        // }, { new: true });
+        // await comment.save();
+        
+        res.status(200).json({ message: "Commet likes" });
+    }
+    catch (err) {
+        console.error("Error decoding token:", err.message);
+    }
+}
+
 
 exports.getcomment = async (req, res, next) => {
     try {
@@ -70,5 +107,3 @@ exports.getcomment = async (req, res, next) => {
         console.log(error);
     }
 }
-
-

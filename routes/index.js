@@ -6,6 +6,8 @@ const updatedata = require('./Updatedata');
 const upload = require('./upload');
 const postcomment = require('./commetroute');
 
+const Blockuserroutes = require('./Blockuserroutes');
+
 const FollowUnfollow = require('./FollowUnfollow');
 
 /* GET home page. */
@@ -20,4 +22,5 @@ router.use('/update', updatedata)
 router.use('/upload', upload)
 router.use('/comment', postcomment)
 router.use('/follow', FollowUnfollow)
+router.use('/block', Blockuserroutes)
 module.exports = router;

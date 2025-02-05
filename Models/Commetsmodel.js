@@ -20,8 +20,15 @@ const postcommet = new mongoose.Schema({
     commentbyUsername: {
         type: String,
         required: true
+    },
+    Commet_like: {
+        type: Number,
+        default: 0,
+    },
+    Likedby: {
+        type: Array, 
+        default: []
     }
-
 })
 
 module.exports = mongoose.model('postcomments', postcommet)
