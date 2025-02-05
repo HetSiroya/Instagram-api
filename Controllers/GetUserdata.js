@@ -17,6 +17,7 @@ exports.getdata = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
         res.status(200).json({ status: true, message: 'Token verified', data: decoded });
+        
     } catch (error) {
         console.error("Error decoding token:", error.message);
         return res.status(400).json({ status: false, message: 'Invalid token', data: {} });

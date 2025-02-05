@@ -5,6 +5,8 @@ const file = require('../Models/file');
 const jwt = require('jsonwebtoken');
 const Users = require('../Models/Users');
 const Postlike = require('../Models/Postlike');
+const { findOne } = require('../Models/RigsterModel');
+const Blockmodel = require('../Models/Blockmodel');
 // const { find } = require('../Models/RigsterModel');
 // const file = require('../Models/file');
 
@@ -25,9 +27,23 @@ exports.postlike = async (req, res) => {
             return res.status(400).json({ status: false, message: 'Post not found', data: {} });
         }
 
+
         const exitsingLike = await Postlike.findOne({ postid, likedBy: userId });
         // Like Count
         console.log("postid: " + postid);
+        const user = await file.findById(postid);
+        console.log("user: " + user.userId);
+        const blockusercheck = await Blockmodel.findOne({
+            blockedBy: user.userId
+        })
+        console.log("blockusercheck: " + blockusercheck);
+        if (blockusercheck) {
+            return res.status(400).json({ status: false, message: 'User Blocked', data: {} });
+        }
+
+        // if (block) {
+        //     return res.status(400).json({ status: false, message: 'User Blocked', data: {} });
+        // }
 
         const likes = await Postlike.find({ postid })
         // console.log(likes.length);
