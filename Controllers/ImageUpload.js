@@ -5,7 +5,8 @@ const file = require('../Models/file')
 const jwt = require('jsonwebtoken');
 const { find } = require('../Models/Users');
 // const decoded = require('../Middleware/decode');
-const Postlike = require('../Models/Postlike')
+const Postlike = require('../Models/Postlike');
+const Users = require('../Models/Users');
 
 // const user = require('../Models/Users');
 
@@ -148,4 +149,25 @@ const getpostbyuserid = async (req, res) => {
     }
 }
 
-module.exports = { uploadFile, deletepost, getuserpost, allposts, getpostbyid, getpostbyuserid };
+const searchuser = async (req, res) => {
+    try {
+        const search = req.query.username
+        const users = await Users.find({
+            $or: [
+                { username: new RegExp('^' + search, 'i') },
+                { name: new RegExp('^' + search, 'i') },
+            ]
+        }).select(' username name')
+        console.log('users', users);
+
+        const data = users;
+        return res.status(200).json({ status: true, message: 'Users fetched successfully', data: data });
+
+    }
+    catch (error) {
+        console.error("Error decoding token:", error.message);
+        return res.status(400).json({ status: false, message: 'Error', data: data });
+    }
+}
+
+module.exports = { uploadFile, deletepost, getuserpost, allposts, getpostbyid, getpostbyuserid, searchuser };
