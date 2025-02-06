@@ -123,7 +123,7 @@ exports.likecommets = async (req, res) => {
         }
         const likecount = await commetlikemodel.find({
             postid: comment.postid
-        })  
+        })
         // console.log("post", comment.postid);
         const finddata = await commetlikemodel.findOne({
             postid: comment.postid,
@@ -146,7 +146,7 @@ exports.likecommets = async (req, res) => {
             status: true,
             message: "Comment liked successfully",
             data: userLike,
-            likecount: likecount.length 
+            likecount: likecount.length
         });
 
     }
@@ -212,24 +212,38 @@ exports.unlikecommets = async (req, res) => {
 
 exports.getcomment = async (req, res, next) => {
     try {
-        const postId = req.query.postId;
+        const { postId } = req.query;
+        let { page, limit } = req.query;
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 2;
+        const skip = (page - 1) * limit;
         const token = req.header('Authorization')?.split(' ')[1];
         if (!token) {
             return res.status(400).json({ status: false, message: 'Token missing', data: {} });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const userId = decoded.id;
-        console.log("userId " + userId);
+        // console.log("userId " + userId);
         const user = await Users.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const comments = await commentmodel.find();
-        console.log(comments);
+        const comments = await commentmodel.find().skip(skip).limit(limit);
+        const totalPages = await commentmodel.countDocuments()
 
-        return res.status(200).json({ status: true, message: 'Comments fetched successfully', data: comments });
+        // console.log(comments.length);
+
+        return res.status(200).json({
+            currentPage: page,
+            totalPages: Math.ceil(totalPages / limit),
+            totalComments: totalPages,
+            data: comments,
+            status: true,
+            message: 'Comments fetched successfully'
+        });
 
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ status: false, message: error.message });
     }
 }

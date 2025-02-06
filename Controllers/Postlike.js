@@ -22,34 +22,47 @@ exports.postlike = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const userId = decoded.id;
 
-        const post = file.findById(postid);
+        const post = await file.findById(postid);
         if (!post) {
             return res.status(400).json({ status: false, message: 'Post not found', data: {} });
         }
 
 
         const exitsingLike = await Postlike.findOne({ postid, likedBy: userId });
-        // Like Count
-        console.log("postid: " + postid);
+
+        // Fixed aggregation pipeline
+        const orde = await Postlike.aggregate([
+            {
+                $match: { postid: postid }
+            },
+            {
+                $lookup: {
+                    from: "users", // Collection name should be lowercase
+                    localField: "likedBy",
+                    foreignField: "_id",
+                    as: "likedByUser"
+                }
+            },
+            {
+                $unwind: "$likedByUser"
+            }
+        ]);
+
+        console.log("orde: " + orde);
         const user = await file.findById(postid);
         console.log("user: " + user.userId);
         const blockusercheck = await Blockmodel.findOne({
             blockedBy: user.userId
         })
-        console.log("blockusercheck: " + blockusercheck);
         if (blockusercheck) {
             return res.status(400).json({ status: false, message: 'User Blocked', data: {} });
         }
 
-        // if (block) {
-        //     return res.status(400).json({ status: false, message: 'User Blocked', data: {} });
-        // }
 
         const likes = await Postlike.find({ postid })
-        // console.log(likes.length);
+
 
         const likeCount = likes.length;
-        // console.log("Like Count:", likeCount);
 
 
         if (exitsingLike) {
@@ -59,13 +72,11 @@ exports.postlike = async (req, res) => {
         }
 
         const postup = await file.findByIdAndUpdate(postid, { $inc: { like: likeCount } }, { new: true });
-        console.log("Post after like:", postup);
         await postup.save();
 
 
         const newLike = new Postlike({ postid, likedBy: userId });
         await newLike.save();
-        // const file  = await file.find()
         return res.status(200).json({ status: true, message: 'Post liked successfully', data: newLike });
 
     } catch (error) {
@@ -93,7 +104,7 @@ exports.deletepostlike = async (req, res) => {
         }
         console.log("postID", postId);
 
-        const post = file.findById(postId);
+        const post = await file.findById(postId);
         console.log("Post:", post);
 
         if (!post) {

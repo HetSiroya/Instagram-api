@@ -105,6 +105,7 @@ const getuserpost = async (req, res) => {
 const allposts = async (req, res) => {
     try {
         const posts = await file.find()
+        
         if (!posts) {
             return res.status(404).json({ message: 'No posts found' });
         }
