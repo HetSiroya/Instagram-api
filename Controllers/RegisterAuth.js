@@ -131,25 +131,21 @@ exports.changePassword = async (req, res) => {
             return res.status(400).json({ status: false, message: 'Password and new password are required', data: {} });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
         const { password, newpassword } = req.body;
-
-        // const user = await Users.findById(decoded.id).lean();
-
 
         const user = await Users.findById(decoded.id).lean();
         console.log("user", user.password);
-        console.log("user", user);
+
+        console.log("password", password);
+        console.log("user", user.password);
         const isMatch = await bcrypt.compare(password, user.password);
         console.log("isMatch", isMatch);
-
-
-        if (isMatch) {
+        if (!isMatch) {
             return res.status(400).json({ status: false, message: 'Invalid Password', data: {} });
         }
         const hashedPassword = await bcrypt.hash(newpassword, 10);
-        await Users.findByIdAndUpdate(decoded.id, { password: hashedPassword });
-        const data = await Users.findById(decoded.id);
-        // console.log("data", data);
+        const data = await Users.findByIdAndUpdate(user._id, { password: hashedPassword });
         const tokenh = generatetoken(data);
         return res.status(200).json({ status: true, message: 'Password changed successfully', data: data, token: tokenh });
     }

@@ -14,14 +14,9 @@ exports.updatedata = async (req, res) => {
         // console.log("Token:", token);
         // Decode the token
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        // Log the decoded payload as a string for readability
-        // console.log("Decoded:", JSON.stringify(decoded));
-        // console.log("id", decoded.id);
-        // Update the user data
         try {
             const { name, email, bio, gender, username, Mobilenumber, password } = req.body;
             const hashedPassword = await bcrypt.hash(password, 10);
-            // console.log("hashedPassword", hashedPassword);
             const updatedata = { name, email, bio, gender, username, Mobilenumber, password: hashedPassword };
             const updatedUser = await User.findByIdAndUpdate(decoded.id, updatedata, { new: true });
             if (!updatedUser) {

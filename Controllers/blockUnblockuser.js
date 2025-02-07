@@ -1,6 +1,5 @@
 const express = require('express');
 const Users = require('../Models/Users');
-// const jwt = require('')\
 const jwt = require('jsonwebtoken');
 const Blockmodel = require('../Models/Blockmodel');
 
@@ -48,7 +47,7 @@ exports.blockUser = async (req, res, next) => {
         res.status(200).json({
             status: true,
             message: 'User blocked successfully',
-            data: user
+            block: newBlock
         });
     }
     catch (error) {
@@ -79,10 +78,9 @@ exports.unblock = async (req, res) => {
         const unblock = await Blockmodel.findByIdAndDelete(block.id);
 
         res.status(200).json({ status: true, message: "User Unblocked", data: unblock });
-    } catch (error) {   
+    } catch (error) {
         // console.log("Error", error);
         res.status(500).json({ satus: false, message: "", data: error.message });
-
     }
 
 
