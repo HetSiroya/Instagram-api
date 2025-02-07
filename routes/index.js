@@ -22,5 +22,5 @@ router.use('/update', updatedata)
 router.use('/upload', upload)
 router.use('/comment', postcomment)
 router.use('/follow', FollowUnfollow)
-router.use('/block', Blockuserroutes)
+router.use('/block', Blockuserroutes) 
 module.exports = router;

@@ -101,7 +101,6 @@ const getuserpost = async (req, res) => {
     }
 }
 
-
 const allposts = async (req, res) => {
     try {
         const posts = await file.find()

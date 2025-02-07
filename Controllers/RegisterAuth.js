@@ -8,17 +8,6 @@ const generatetoken = require('../Helpers/tokens');
 const { generateOTP } = require('../Helpers/OTP');
 
 
-// function generateOTP() {
-
-
-//     let digits = '0123456789';
-//     let OTP = '';
-//     let len = digits.length
-//     for (let i = 0; i < 4; i++) {
-//         OTP += digits[Math.floor(Math.random() * len)];
-//     }
-//     return OTP;
-// }
 
 
 const exOTP = generateOTP()
@@ -154,8 +143,6 @@ exports.changePassword = async (req, res) => {
         return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
     }
 }
-
-
 
 exports.forgotPassword = async (req, res) => {
     try {

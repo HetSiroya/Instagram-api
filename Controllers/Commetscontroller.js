@@ -48,58 +48,7 @@ exports.Postcomment = async (req, res, next) => {
     }
 }
 
-// exports.likecommets = async (req, res) => {
-//     try {
-//         const commentId = req.query.commentId;
-//         const token = req.header('Authorization')?.split(' ')[1];
 
-//         if (!token) {
-//             return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-//         }
-
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-//         const userId = decoded.id;
-
-//         const user = await Users.findById(userId);
-//         if (!user) {
-//             return res.status(404).json({ status: false, message: "User not found" });
-//         }
-
-//         const comment = await commentmodel.findById(commentId);
-//         if (!comment) {
-//             return res.status(404).json({ status: false, message: "Comment not found" });
-//         }
-
-//         // Check if user has already liked the comment
-//         if (comment.Likedby && comment.Likedby.includes(userId)) {
-//             return res.status(400).json({ status: false, message: "You have already liked this comment" });
-//         }
-
-//         // Update the comment with like
-//         const updatedComment = await commentmodel.findByIdAndUpdate(
-//             commentId,
-//             {
-//                 $inc: { Commet_like: 1 },
-//                 Likedby: userId
-//             },
-//             { new: true }
-//         );
-
-//         return res.status(200).json({
-//             status: true,
-//             message: "Comment liked successfully",
-//             data: updatedComment
-//         });
-//     }
-//     catch (err) {
-//         console.error("Error in likecommets:", err);
-//         return res.status(500).json({
-//             status: false,
-//             message: "Internal server error",
-//             error: err.message
-//         });
-//     }
-// }
 exports.likecommets = async (req, res) => {
     try {
         const commentId = req.query.commentId;
@@ -195,9 +144,6 @@ exports.unlikecommets = async (req, res) => {
             message: "Comment disliked successfully",
             data: finddata
         });
-
-
-
     } catch (error) {
         console.error("Error in unlikecommets:", error);
         return res.status(500).json({
