@@ -21,4 +21,4 @@ const likecommetSchema = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('likecommet', likecommetSchema)
+module.exports = mongoose.model('LikeComment', likecommetSchema)

@@ -7,29 +7,38 @@ const generatetoken = require('../Helpers/tokens');
 
 exports.updatedata = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        // console.log("Token:", token);
-        // Decode the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        try {
-            const { name, email, bio, gender, username, Mobilenumber, password } = req.body;
+        const user = req.user;
+        console.log("user", user);
+
+        const { name, email, bio, gender, username, Mobilenumber, password } = req.body;
+        console.log("email", email);
+
+        let updatedata = { name, email, bio, gender, username, Mobilenumber };
+
+        if (password && password !== "") {
             const hashedPassword = await bcrypt.hash(password, 10);
-            const updatedata = { name, email, bio, gender, username, Mobilenumber, password: hashedPassword };
-            const updatedUser = await User.findByIdAndUpdate(decoded.id, updatedata, { new: true });
-            if (!updatedUser) {
-                return res.status(404).json({ status: false, message: 'User not found', data: {} });
-            }
-            const token = generatetoken(updatedUser)
-            res.status(200).json({ status: true, message: 'User data updated successfully', data: updatedUser, token: token });
-        } catch (error) {
-            console.error("Error updating user data:", error.message);
-            return res.status(500).json({ status: false, message: 'Error updating user data', data: {} });
+            updatedata.password = hashedPassword;
         }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            { $set: updatedata },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ status: false, message: 'User not found', data: {} });
+        }
+
+        const token = generatetoken(updatedUser);
+        res.status(200).json({
+            status: true,
+            message: 'User data updated successfully',
+            data: updatedUser,
+            token: token
+        });
     } catch (error) {
-        console.error("Error decoding token:", error.message);
-        return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
+        console.error("Error updating user data:", error.message);
+        return res.status(500).json({ status: false, message: 'Error updating user data', data: {} });
     }
-};
+} 

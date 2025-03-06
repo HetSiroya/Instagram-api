@@ -15,10 +15,16 @@ const otp = exOTP.toString()
 exports.registerpost = async (req, res) => {
     try {
         const { email } = req.body;
-        const rigster = new RigsterModel({
-            email: email,
-            otp: otp
-        })
+        let rigster = await RigsterModel.findOne({ email: email });
+        if (rigster) {
+            rigster.otp = otp;
+            await rigster.save();
+        } else {
+            rigster = new RigsterModel({
+                email: email,
+                otp: otp
+            });
+        }
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -87,6 +93,9 @@ exports.Users = async (req, res) => {
 exports.Login = async (req, res) => {
     try {
         const { input, password } = req.body;
+        console.log("input", input);
+        console.log("password", password);
+
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
         const isMobileNumber = /^\d+$/.test(input);
         const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
@@ -112,18 +121,11 @@ exports.Login = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        if (!req.body.password || !req.body.newpassword) {
-            return res.status(400).json({ status: false, message: 'Password and new password are required', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = req.user;
 
         const { password, newpassword } = req.body;
 
-        const user = await Users.findById(decoded.id).lean();
+        // const user = await Users.findById(decoded.id).lean();
         console.log("user", user.password);
 
         console.log("password", password);

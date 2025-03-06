@@ -6,11 +6,7 @@ const Blockmodel = require('../Models/Blockmodel');
 
 exports.blockUser = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = req.user
         // console.log("decoded id", decoded.id);
 
         const { blockuserid } = req.body;
@@ -18,16 +14,16 @@ exports.blockUser = async (req, res, next) => {
             return res.status(400).json({ status: false, message: 'User ID is required', data: {} });
         }
 
-        const user = await Users.findById(blockuserid);
+        const blockuser = await Users.findById(blockuserid);
         // console.log("user", user);
 
-        if (!user) {
+        if (!blockuser) {
             return res.status(404).json({ message: "User not found" });
         }
         // console.log("blockuserid", blockuserid);
 
         const blocked = await Blockmodel.findOne({
-            blockedBy: decoded.id,
+            blockedBy: user.id,
             blockedTo: blockuserid
         });
 
@@ -39,7 +35,7 @@ exports.blockUser = async (req, res, next) => {
         }
 
         const newBlock = new Blockmodel({
-            blockedBy: decoded.id,
+            blockedBy: user.id,
             blockedTo: blockuserid
         });
         await newBlock.save();
@@ -56,19 +52,16 @@ exports.blockUser = async (req, res, next) => {
     }
 
 }
+
 exports.unblock = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = req.user;
         const { unblockuserid } = req.body;
         if (!unblockuserid) {
             return res.status(400).json({ status: false, message: 'User ID is required', data: {} });
         }
         const block = await Blockmodel.findOne({
-            blockedBy: decoded.id,
+            blockedBy: user.id,
             blockedTo: unblockuserid
         })
         if (!block) {

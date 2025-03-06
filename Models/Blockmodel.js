@@ -19,4 +19,4 @@ const Blocked = mongoose.Schema({
 
 })
 
-module.exports = mongoose.model('Blocked', Blocked);
+module.exports = mongoose.model('Blocked-user', Blocked);

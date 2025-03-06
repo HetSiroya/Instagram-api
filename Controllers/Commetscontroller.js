@@ -13,24 +13,18 @@ exports.Postcomment = async (req, res, next) => {
         const { comment, postid } = req.body;
         console.log("PostId", postid);
 
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
-        console.log("userId " + userId);
+        const userId = req.user.id;
         const user = await Users.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const commentcnt = await commentmodel.find({ postid })
-        console.log("commentcnt " + commentcnt);
+        const Comment = await commentmodel.find({ postid })
+        console.log("Comment " + Comment);
 
         // console.log(likes.length);
 
-        const commentCount = commentcnt.length;
+        const commentCount = Comment.length;
         // console.log("commentCount " + commentCount);
 
         const postup = await file.findByIdAndUpdate(postid, { $inc: { Comments: commentCount } }, { new: true });
@@ -52,14 +46,7 @@ exports.Postcomment = async (req, res, next) => {
 exports.likecommets = async (req, res) => {
     try {
         const commentId = req.query.commentId;
-        const token = req.header('Authorization')?.split(' ')[1];
-
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
+        const userId = req.user.id;
 
         const user = await Users.findById(userId);
         if (!user) {
@@ -112,14 +99,7 @@ exports.likecommets = async (req, res) => {
 exports.unlikecommets = async (req, res) => {
     try {
         const commentId = req.query.commentId;
-        const token = req.header('Authorization')?.split(' ')[1];
-
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
+        const userId = req.user.id;
         const user = await Users.findById(userId);
         if (!user) {
             return res.status(404).json({ status: false, message: "User not found" });
@@ -163,22 +143,13 @@ exports.getcomment = async (req, res, next) => {
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 2;
         const skip = (page - 1) * limit;
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
-        // console.log("userId " + userId);
+        const userId = req.user.id;
         const user = await Users.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
         const comments = await commentmodel.find().skip(skip).limit(limit);
         const totalPages = await commentmodel.countDocuments()
-
-        // console.log(comments.length);
-
         return res.status(200).json({
             currentPage: page,
             totalPages: Math.ceil(totalPages / limit),

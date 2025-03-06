@@ -1,7 +1,6 @@
 const express = require('express');
 // const router = express.Router();
 const app = express();
-const file = require('../Models/file');
 const jwt = require('jsonwebtoken');
 const Users = require('../Models/Users');
 const Postlike = require('../Models/Postlike');
@@ -9,27 +8,20 @@ const { findOne } = require('../Models/RigsterModel');
 const Blockmodel = require('../Models/Blockmodel');
 // const { find } = require('../Models/RigsterModel');
 // const file = require('../Models/file');
+const Posts = require('../Models/file');
 
 
 exports.postlike = async (req, res) => {
     try {
         const postid = req.query.id;
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
-
-        const post = await file.findById(postid);
+        console.log(postid);
+        const user = req.user;
+        const userId = user._id;
+        const post = await Posts.findById(postid);
         if (!post) {
             return res.status(400).json({ status: false, message: 'Post not found', data: {} });
         }
-
-
-        const exitsingLike = await Postlike.findOne({ postid, likedBy: userId });
-
+        const exitsingLike = await Postlike.findOne({ postid, likedBy: user._id });
         // Fixed aggregation pipeline
         const orde = await Postlike.aggregate([
             {
@@ -47,31 +39,24 @@ exports.postlike = async (req, res) => {
                 $unwind: "$likedByUser"
             }
         ]);
-
         console.log("orde: " + orde);
-        const user = await file.findById(postid);
-        console.log("user: " + user.userId);
+        const file = await Posts.findById(postid);
+        console.log("user: " + file.userId);
         const blockusercheck = await Blockmodel.findOne({
-            blockedBy: user.userId
+            blockedBy: file.userId
         })
         if (blockusercheck) {
             return res.status(400).json({ status: false, message: 'User Blocked', data: {} });
         }
-
-
         const likes = await Postlike.find({ postid })
-
-
         const likeCount = likes.length;
-
-
         if (exitsingLike) {
             return res
                 .status(400)
                 .json({ status: false, message: "Post Already Liked" });
         }
 
-        const postup = await file.findByIdAndUpdate(postid, { $inc: { like: likeCount } }, { new: true });
+        const postup = await Posts.findByIdAndUpdate(postid, { $inc: { like: likeCount } }, { new: true });
         await postup.save();
 
 
@@ -89,22 +74,17 @@ exports.postlike = async (req, res) => {
 exports.deletepostlike = async (req, res) => {
     try {
         const { postId } = req.query.id;
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
+        const user = req.user;
+        const userId = user.id;
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
-        console.log("Decoded User ID:", userId);
 
-        const user = await Users.findById(userId);
-        if (!user) {
+        const exist = await Users.findById(userId);
+        if (!exist) {
             return res.status(404).json({ message: "User not found" });
         }
         console.log("postID", postId);
 
-        const post = await file.findById(postId);
+        const post = await Posts.findById(postId);
         console.log("Post:", post);
 
         if (!post) {

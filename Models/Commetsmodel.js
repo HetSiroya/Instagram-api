@@ -23,4 +23,4 @@ const postcommet = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('postcomments', postcommet)
+module.exports = mongoose.model('Comments', postcommet)

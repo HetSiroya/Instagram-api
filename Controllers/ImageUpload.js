@@ -3,32 +3,24 @@ const router = express.Router();
 const app = express();
 const file = require('../Models/file')
 const jwt = require('jsonwebtoken');
-const { find } = require('../Models/Users');
+// const { find } = require('../Models/Users');
 // const decoded = require('../Middleware/decode');
 const Postlike = require('../Models/Postlike');
 const Users = require('../Models/Users');
+const Posts = require('../Models/file');
 
 // const user = require('../Models/Users');
 
 
 const uploadFile = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const user = req.user;
+        const userId = user.id;
         const files = req.files;
         if (!files || files.length === 0) {
             return res.status(400).json({ message: 'No files uploaded' });
         }
-
-
-        // console.log(userId);
-        const userId = decoded.id;
-        // console.log(userId);
-
         const newPost = new file({ userId });
         if (req.files && req.files.length > 0) {
             newPost.files = req.files.map((file) => ({
@@ -49,17 +41,9 @@ const uploadFile = async (req, res) => {
 
 const deletepost = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        // const id = req.query.id;
+        const user = req.user;
         const deleteid = req.query.deleteid;
-        // console.log("deleteid" + deleteid);
-        // console.log(id);
-        let post = await file.findById(id);
+        let post = await file.findById(deleteid);
         console.log(post);
         // const deletepost = await file.findByIdAndDelete(id);
         post = post.files
@@ -78,15 +62,10 @@ const deletepost = async (req, res) => {
 
 const getuserpost = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userId = decoded.id;
-        console.log("Decoded User ID:", userId);
-        const post = await file.find({ userId });
+        const user = req.user;
+        const post = await Posts.find({
+            userId: user.id
+        });
 
         if (!post) {
             return res.status(404).json({ message: "User post not found" });
@@ -103,13 +82,11 @@ const getuserpost = async (req, res) => {
 
 const allposts = async (req, res) => {
     try {
-        const posts = await file.find()
-        
+        const posts = await Posts.find()
+
         if (!posts) {
             return res.status(404).json({ message: 'No posts found' });
         }
-        // const likes = await Postlike.find({ postid })
-        // console.log(likes.length);
         return res.status(200).json({ status: true, message: 'Posts fetched successfully', data: posts });
     }
     catch (error) {
@@ -122,7 +99,7 @@ const allposts = async (req, res) => {
 const getpostbyid = async (req, res) => {
     try {
         const postId = req.query.id
-        const post = await file.findById(postId)
+        const post = await Posts.findById(postId)
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
@@ -137,7 +114,7 @@ const getpostbyid = async (req, res) => {
 const getpostbyuserid = async (req, res) => {
     try {
         const userId = req.query.userId
-        const post = await file.find({ userId })
+        const post = await Posts.find({ userId })
         if (!post) {
             return res.status(404).json({ message: 'No posts found' });
         }

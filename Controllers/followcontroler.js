@@ -4,14 +4,7 @@ const Users = require('../Models/Users');
 const FollowModel = require('../Models/FollowModel');
 
 exports.followUser = async (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];
-    if (!token) {
-        return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-    }
-    // if (!req.body.password || !req.body.newpassword) {
-    //     return res.status(400).json({ status: false, message: 'Password and new password are required', data: {} });
-    // }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user = req.user;
     const { userToFollow } = req.body;
     const followUser = await Users.findById(userToFollow);
     const userID = decoded.id;
@@ -35,12 +28,8 @@ exports.followUser = async (req, res, next) => {
 
 exports.unfollowUser = async (req, res, next) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const loginuserid = decoded.id;
+        const user = req.user;
+        const loginuserid = user.id;
         const userToUnfollow = req.query.unfollowid;
         const userExists = await FollowModel.findOne({ UserID: loginuserid, FollowingID: userToUnfollow });
         if (!userExists) {
@@ -58,12 +47,8 @@ exports.unfollowUser = async (req, res, next) => {
 
 exports.getfollowers = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const follower = decoded.id
+        const user = req.user
+        const follower = user.id
         const followers = await FollowModel.find({ FollowingID: follower });
         const total = followers.length
         res.status(200).json({ followers: followers, total: total })
@@ -75,12 +60,8 @@ exports.getfollowers = async (req, res) => {
 
 exports.getfollowering = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const follower = decoded.id
+        const user = req.user
+        const follower = user.id
         const followers = await FollowModel.find({ UserID: follower });
         const total = followers.length
         res.status(200).json({ followers: followers, total: total })

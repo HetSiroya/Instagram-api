@@ -12,38 +12,27 @@ const router = express.Router();
 
 exports.getdata = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
+        const user = req.user;
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
-        res.status(200).json({ status: true, message: 'Token verified', data: decoded });
+        res.status(200).json({ status: true, message: 'User Data', data: user });
 
     } catch (error) {
         console.error("Error decoding token:", error.message);
-        return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
+        return res.status(400).json({ status: false, message: 'Error', data: {} });
     }
 };
 
 exports.getpostall = async (req, res) => {
     try {
         let userdetails = [];
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(400).json({ status: false, message: 'Token missing', data: {} });
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        const userID = decoded.id;
-        console.log("User ID:", userID);
+        const user = req.user;
 
         const postsall = await file.find(); // Fetch all posts
 
         let filteredPosts = [];
 
         for (const post of postsall) {
-            if (post.userId.toString() !== userID) {
+            if (post.userId.toString() !== user.id) {
                 filteredPosts.push(post);
 
                 console.log("Post ID:", post._id);
