@@ -29,7 +29,9 @@ exports.security = async (req, res, next) => {
             return res.status(400).json({ status: false, message: 'User not found', data: {} });
         }
         // console.log(decodedUser);
-
+        if (token != decodedUser.token) {
+            return res.status(400).json({ status: false, message: "token is not verifed", data: {} });
+        }
         req.user = decodedUser;
         next();
     } catch (err) {

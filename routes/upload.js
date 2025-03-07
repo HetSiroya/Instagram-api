@@ -5,10 +5,6 @@ const { uploadFile, deletepost, getuserpost } = require('../Controllers/ImageUpl
 const { postlike, deletepostlike } = require('../Controllers/Postlike');
 const { upload } = require('../Middlewares/file-upload');
 const { security } = require('../Middlewares/token-decode');
-// const {  } = require('../Controllers/');
-
-
-
 
 
 router.post('/', upload.single('file'), uploadFile);

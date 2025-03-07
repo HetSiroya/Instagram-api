@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 const auth = require('./auth')
 const GetData = require('./GetData');
-const updatedata = require('./Updatedata');
 const upload = require('./upload');
 const postcomment = require('./commetroute');
 
@@ -19,7 +18,6 @@ router.get('/', function (req, res, next) {
 
 router.use('/auth', auth)
 router.use('/get', GetData)
-// router.use('/update', security, updatedata)
 router.use('/upload', security, upload)
 router.use('/comment', postcomment)
 router.use('/follow', FollowUnfollow)

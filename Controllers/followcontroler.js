@@ -53,26 +53,89 @@ exports.unfollowUser = async (req, res, next) => {
 
 exports.getfollowers = async (req, res) => {
     try {
-        const user = req.user
-        const follower = user.id
+        const user = req.user;
+        const follower = user.id;
         const followers = await FollowModel.find({ FollowingID: follower });
-        const total = followers.length
-        res.status(200).json({ followers: followers, total: total })
+        const total = followers.length;
+
+        const userdata = await Users.aggregate([
+            {
+                $match: {
+                    _id: { $in: followers.map(follower => follower.UserID) }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    username: 1,
+                    email: 1,
+                    bio: 1,
+                    profile: 1,
+                    gender: 1
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            status: true,
+            message: "Followers retrieved successfully",
+            data: {
+                followers: userdata,
+                total: total
+            }
+        });
 
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(500).json({
+            status: false,
+            message: "Server error",
+            error: error.message
+        });
     }
 }
 
 exports.getfollowering = async (req, res) => {
     try {
-        const user = req.user
-        const follower = user.id
-        const followers = await FollowModel.find({ UserID: follower });
-        const total = followers.length
-        res.status(200).json({ followers: followers, total: total })
+        const user = req.user;
+        const follower = user.id;
+        const following = await FollowModel.find({ UserID: follower });
+        const total = following.length;
+
+        // Get detailed user information for people being followed
+        const userdata = await Users.aggregate([
+            {
+                $match: {
+                    _id: { $in: following.map(follow => follow.FollowingID) }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    username: 1,
+                    email: 1,
+                    bio: 1,
+                    profile: 1,
+                    gender: 1
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            status: true,
+            message: "Following list retrieved successfully",
+            data: {
+                following: userdata,
+                total: total
+            }
+        });
 
     } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(500).json({
+            status: false,
+            message: "Server error",
+            error: error.message
+        });
     }
 }
