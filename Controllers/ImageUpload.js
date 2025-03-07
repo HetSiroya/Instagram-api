@@ -3,39 +3,25 @@ const router = express.Router();
 const app = express();
 const file = require('../Models/file')
 const jwt = require('jsonwebtoken');
-// const { find } = require('../Models/Users');
-// const decoded = require('../Middleware/decode');
 const Postlike = require('../Models/Postlike');
 const Users = require('../Models/Users');
 const Posts = require('../Models/file');
-
-// const user = require('../Models/Users');
-
-
 const uploadFile = async (req, res) => {
     try {
-
         const user = req.user;
         const userId = user.id;
-        const files = req.files;
-        if (!files || files.length === 0) {
-            return res.status(400).json({ message: 'No files uploaded' });
-        }
-        const newPost = new file({ userId });
-        if (req.files && req.files.length > 0) {
-            newPost.files = req.files.map((file) => ({
-                fileName: file.originalname,
-                filePath: file.filename,
-                fileType: file.mimetype.split("/")[1],
+        const file = req.file;
+        const newPost = new Posts({
+            userId: userId,
+            image: file.path
+        });
 
-            }));
-        }
         const data = await newPost.save();
         res.status(200).json({ status: true, message: 'File uploaded successfully', data });
     }
     catch (error) {
-        console.error("Error decoding token:", error.message);
-        return res.status(400).json({ status: false, message: 'Invalid token', data: {} });
+        console.error("Error uploading file:", error.message);
+        return res.status(500).json({ status: false, message: 'Error uploading file', error: error.message });
     }
 };
 
@@ -45,7 +31,6 @@ const deletepost = async (req, res) => {
         const deleteid = req.query.deleteid;
         let post = await file.findById(deleteid);
         console.log(post);
-        // const deletepost = await file.findByIdAndDelete(id);
         post = post.files
         const deletepost = await file.findByIdAndDelete(deleteid)
         if (!post) {
@@ -71,7 +56,8 @@ const getuserpost = async (req, res) => {
             return res.status(404).json({ message: "User post not found" });
         }
 
-        console.log("User Post:", post);
+
+        // console.log("User Post:", post);
         return res.status(200).json({ status: true, message: 'User post fetched successfully', data: post });
     }
     catch (error) {

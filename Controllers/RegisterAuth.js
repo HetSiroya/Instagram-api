@@ -74,14 +74,25 @@ exports.Users = async (req, res) => {
         if (!otpRecord) return res.status(404).json({ status: false, message: 'OTP not found', data: {} });
         if (otpRecord.otp !== otplogin) return res.status(400).json({ status: false, message: 'Invalid OTP', data: {} });
 
-        const token = generatetoken(login)
         await login.save();
+        const token = generatetoken(login)
+
+        user.token = token;
+
+        const data = await Users.findByIdAndUpdate(
+            login._id,
+            { token: token },
+            { new: true }
+        );
+
+
+
         await otpRecord.deleteOne(); // Now `otpRecord` has the `deleteOne` method.
 
         return res.status(200).json({
             status: true,
             message: 'User registered successfully',
-            data: login,
+            data: data,
             token: token
         });
     } catch (error) {
@@ -100,9 +111,9 @@ exports.Login = async (req, res) => {
         const isMobileNumber = /^\d+$/.test(input);
         const query = isEmail ? { email: input } : isMobileNumber ? { Mobilenumber: Number(input) } : { username: input };
         const user = await Users.findOne(query).lean();
-        console.log("user", user);
+        // console.log("user", user);
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log("isMatch", isMatch);
+        // console.log("isMatch", isMatch);
         if (!user) {
             return res.status(400).send({ message: "Invalid Credentials" });
         }
@@ -112,7 +123,12 @@ exports.Login = async (req, res) => {
 
         // Generate token
         const token = generatetoken(user);
-        res.status(200).send({ message: "Login Successful", token });
+        const data = await Users.findByIdAndUpdate(
+            user._id,
+            { token: token },
+            { new: true }
+        );
+        res.status(200).send({ message: "Login Successful", data });
     } catch (error) {
         console.error("Error during login:", error.message);
         return res.status(500).json({ status: false, message: 'An error occurred', data: {} });
@@ -170,3 +186,58 @@ exports.forgotPassword = async (req, res) => {
         res.status(500).send(error.message);
     }
 }
+exports.updatedata = async (req, res) => {
+    try {
+        const user = req.user;
+        console.log(user);
+        const { name, email, bio, gender, username, Mobilenumber } = req.body;
+        const existingUser = await Users.findOne({
+            $or: [
+                { email: email },
+                { username: username },
+                { Mobilenumber: Mobilenumber },
+            ],
+        });
+        if (existingUser) {
+            if (existingUser.email === email) {
+                return res.status(400).json({ status: false, message: 'Email already exists', data: {} });
+            }
+            if (existingUser.username === username) {
+                return res.status(400).json({ status: false, message: 'Username already exists', data: {} });
+            }
+            if (existingUser.Mobilenumber === Mobilenumber) {
+                return res.status(400).json({ status: false, message: 'Mobile number already exists', data: {} });
+            }
+        }
+
+        let updatedata = { name, email, bio, gender, username, Mobilenumber };
+
+        const updatedUser = await Users.findByIdAndUpdate(
+            user._id,
+            { $set: updatedata },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ status: false, message: 'User not found', data: {} });
+        }
+        console.log(updatedUser);
+
+        const token = generatetoken(updatedUser);
+        const data = await Users.findByIdAndUpdate(
+            user._id,
+            { token: token },
+            { new: true }
+        );
+        res.status(200).json({
+            status: true,
+            message: 'User data updated successfully',
+            data: data,
+            token: token
+        });
+    } catch (error) {
+        console.error("Error updating user data:", error.message);
+        return res.status(500).json({ status: false, message: 'Error updating user data', data: {} });
+    }
+}
+

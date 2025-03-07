@@ -19,7 +19,7 @@ router.get('/', function (req, res, next) {
 
 router.use('/auth', auth)
 router.use('/get', GetData)
-router.use('/update', security, updatedata)
+// router.use('/update', security, updatedata)
 router.use('/upload', security, upload)
 router.use('/comment', postcomment)
 router.use('/follow', FollowUnfollow)

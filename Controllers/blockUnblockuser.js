@@ -7,20 +7,16 @@ const Blockmodel = require('../Models/Blockmodel');
 exports.blockUser = async (req, res, next) => {
     try {
         const user = req.user
-        // console.log("decoded id", decoded.id);
-
-        const { blockuserid } = req.body;
+        const { blockuserid } = req.query;
         if (!blockuserid) {
             return res.status(400).json({ status: false, message: 'User ID is required', data: {} });
         }
 
         const blockuser = await Users.findById(blockuserid);
-        // console.log("user", user);
 
         if (!blockuser) {
             return res.status(404).json({ message: "User not found" });
         }
-        // console.log("blockuserid", blockuserid);
 
         const blocked = await Blockmodel.findOne({
             blockedBy: user.id,
@@ -56,7 +52,7 @@ exports.blockUser = async (req, res, next) => {
 exports.unblock = async (req, res) => {
     try {
         const user = req.user;
-        const { unblockuserid } = req.body;
+        const { unblockuserid } = req.query;
         if (!unblockuserid) {
             return res.status(400).json({ status: false, message: 'User ID is required', data: {} });
         }
@@ -72,7 +68,6 @@ exports.unblock = async (req, res) => {
 
         res.status(200).json({ status: true, message: "User Unblocked", data: unblock });
     } catch (error) {
-        // console.log("Error", error);
         res.status(500).json({ satus: false, message: "", data: error.message });
     }
 

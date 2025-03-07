@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { users } = require('../Controllers/RegisterAuth');
+const { token } = require('morgan');
 
 const Users = new mongoose.Schema({
     name: {
@@ -30,6 +31,10 @@ const Users = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    token: {
+        type: String,
+        default: null
     }
 })
 

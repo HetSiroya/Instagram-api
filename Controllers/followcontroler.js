@@ -4,26 +4,32 @@ const Users = require('../Models/Users');
 const FollowModel = require('../Models/FollowModel');
 
 exports.followUser = async (req, res, next) => {
-    const user = req.user;
-    const { userToFollow } = req.body;
-    const followUser = await Users.findById(userToFollow);
-    const userID = decoded.id;
-    console.log("followUser ID: " + followUser.id);
-    console.log("UserID: " + userID);
+    try {
+        const userID = req.user._id;
+        const { userToFollow } = req.query;
+        console.log("usertofollow:" + userToFollow);
+        const followUser = await Users.findById(userToFollow);
+        console.log("followUser: ", followUser);
 
-    if (!followUser) {
-        return res.status(404).json({ message: "User not found" });
+        if (!followUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (userID == followUser.id) {
+            return res.status(400).json({ message: "Cannot follow yourself" });
+        }
+        const userExists = await FollowModel.findOne({ UserID: userID });
+        if (userExists) {
+            return res.status(400).json({ message: "User already following" });
+        }
+        const follow = new FollowModel({ UserID: userID, FollowingID: followUser.id });
+        follow.save()
+        res.status(200).json({ message: "Followed successfully", data: follow })
     }
-    if (userID == followUser.id) {
-        return res.status(400).json({ message: "Cannot follow yourself" });
+    catch (error) {
+        console.log("Error", error);
+        res.status(500).json({ message: "Internal server error", data: error.message });
     }
-    const userExists = await FollowModel.findOne({ UserID: userID });
-    if (userExists) {
-        return res.status(400).json({ message: "User already following" });
-    }
-    const follow = new FollowModel({ UserID: userID, FollowingID: followUser.id });
-    follow.save()
-    res.status(200).json({ message: "Followed successfully", data: "" })
+
 }
 
 exports.unfollowUser = async (req, res, next) => {

@@ -1,5 +1,8 @@
+
+const express = require('express');
 const jwt = require('jsonwebtoken');
 const Users = require('../Models/Users');
+require('dotenv').config();
 
 exports.security = async (req, res, next) => {
     try {
@@ -9,6 +12,8 @@ exports.security = async (req, res, next) => {
         }
 
         const token = authHeader.split(' ')[1];
+        // console.log(token);
+
         if (!token) {
             return res.status(400).json({ status: false, message: 'Invalid token format', data: {} });
         }
@@ -23,6 +28,7 @@ exports.security = async (req, res, next) => {
         if (!decodedUser) {
             return res.status(400).json({ status: false, message: 'User not found', data: {} });
         }
+        // console.log(decodedUser);
 
         req.user = decodedUser;
         next();

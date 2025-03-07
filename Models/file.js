@@ -5,31 +5,13 @@ const fileSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
-    files: [
-        {
-
-            fileName: {
-                type: String,
-                required: true,
-            },
-            filePath: {
-                type: String,
-                required: true,
-            },
-            fileType: {
-                type: String,
-                required: true,
-            },
-
-            uploadedAt: {
-                type: Date,
-                default: Date.now,
-            }
-        }
-    ],
+    image: {
+        type: String,
+        required: true,
+    },
     like: {
         type: Number,
-        default: 1,
+        default: 0,
     },
     Comments: {
         type: Number,

@@ -11,7 +11,7 @@ const { security } = require('../Middlewares/token-decode');
 
 
 
-router.post('/', upload.array('file'), uploadFile);
+router.post('/', upload.single('file'), uploadFile);
 router.delete('/delete', deletepost)
 router.post('/postlike', security, postlike)
 router.delete('/deletepostlilke', security, deletepostlike)

@@ -7,7 +7,6 @@ var router = express.Router();
 
 
 
-router.get('/user', security, getdata)
 router.get('/usersposts', allposts)
 router.get('/postbyid', getpostbyid)
 router.get('/userid', getpostbyuserid)

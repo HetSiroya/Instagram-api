@@ -4,8 +4,8 @@ const { Postcomment, getcomment, likecommets, unlikecommets } = require('../Cont
 const { security } = require('../Middlewares/token-decode')
 
 router.post('/postcomment', security, Postcomment)
-router.get('/getcomment', getcomment)
-router.patch('/likepostcommet', likecommets)
-router.delete('/dislikecomment', unlikecommets)
+router.get('/getcomment', security, getcomment)
+router.patch('/likepostcommet', security, likecommets)
+router.delete('/dislikecomment', security, unlikecommets)
 
 module.exports = router
