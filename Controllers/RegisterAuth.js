@@ -200,6 +200,7 @@ exports.forgotPassword = async (req, res) => {
         res.status(500).send(error.message);
     }
 }
+
 exports.updatedata = async (req, res) => {
     try {
         const user = req.user;
@@ -254,4 +255,18 @@ exports.updatedata = async (req, res) => {
         return res.status(500).json({ status: false, message: 'Error updating user data', data: {} });
     }
 }
+
+exports.logout = async (req, res) => {
+    try {
+        const user = req.user;
+        const updatedUser = await Users.findByIdAndUpdate(
+            user._id,
+            { token: null },
+            { new: true }
+        );
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
 
