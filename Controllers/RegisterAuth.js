@@ -59,6 +59,7 @@ exports.registerpost = async (req, res) => {
         res.status(500).send(error.message)
     }
 }
+
 exports.Users = async (req, res) => {
     try {
         const { name, email, otplogin, bio, gender, username, Mobilenumber, password } = req.body;
@@ -99,7 +100,6 @@ exports.Users = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
-
 
 exports.Login = async (req, res) => {
     try {
@@ -152,9 +152,14 @@ exports.changePassword = async (req, res) => {
             return res.status(400).json({ status: false, message: 'Invalid Password', data: {} });
         }
         const hashedPassword = await bcrypt.hash(newpassword, 10);
-        const data = await Users.findByIdAndUpdate(user._id, { password: hashedPassword });
-        const tokenh = generatetoken(data);
-        return res.status(200).json({ status: true, message: 'Password changed successfully', data: data, token: tokenh });
+        const updatedata = await Users.findByIdAndUpdate(user._id, { password: hashedPassword });
+        const token = generatetoken(updatedata);
+        const data = await Users.findByIdAndUpdate(
+            user._id,
+            { token: token },
+            { new: true }
+        );
+        return res.status(200).json({ status: true, message: 'Password changed successfully', data: data });
     }
     catch (error) {
         console.error("Error decoding token:", error.message);
@@ -178,9 +183,18 @@ exports.forgotPassword = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         await Users.findByIdAndUpdate(user.id, { password: hashedPassword });
-        const data = await Users.findById(user._id);
-        const tokenh = generatetoken(data);
-        return res.status(200).json({ status: true, message: 'Password changed successfully', data: data, token: tokenh });
+        const updatedata = await Users.findById(user._id);
+        const token = generatetoken(updatedata);
+        const data = await Users.findByIdAndUpdate(
+            user._id,
+            { token: token },
+            { new: true }
+        );
+        return res.status(200).json({
+            status: true,
+            message: 'Password changed successfully',
+            data: data,
+        });
     }
     catch (error) {
         res.status(500).send(error.message);

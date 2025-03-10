@@ -6,7 +6,6 @@ function generatetoken(user) {
     const playload = {
         id: user._id,
         email: user.email,
-        // otp: user.otplogin,
         bio: user.bio,
         gender: user.gender,
         username: user.username,
