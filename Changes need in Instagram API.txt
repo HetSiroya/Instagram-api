@@ -1,0 +1,10 @@
+Changes need in Instagram API
+
+Middleware: add token decoded  // , multer // ,   
+Model
+Token in the database     and verified //
+Code structure  // 
+multer and upload section in the public  //
+Routes	 // 
+aggragte // 
+ 
