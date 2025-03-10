@@ -42,7 +42,6 @@ exports.Postcomment = async (req, res, next) => {
     }
 }
 
-
 exports.likecommets = async (req, res) => {
     try {
         const commentId = req.query.commentId;
