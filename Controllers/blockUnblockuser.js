@@ -17,6 +17,12 @@ exports.blockUser = async (req, res, next) => {
         if (!blockuser) {
             return res.status(404).json({ message: "User not found" });
         }
+        if (user.id === blockuserid) {
+            return res.status(400).json({
+                status: false,
+                message: "You can't block yourself"
+            });
+        }
 
         const blocked = await Blockmodel.findOne({
             blockedBy: user.id,

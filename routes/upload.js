@@ -7,10 +7,10 @@ const { upload } = require('../Middlewares/file-upload');
 const { security } = require('../Middlewares/token-decode');
 
 
-router.post('/', upload.single('file'), uploadFile);
-router.delete('/delete', deletepost)
+router.post('/', upload.single('file'), security, uploadFile);
+router.delete('/delete', security, deletepost)
 router.post('/postlike', security, postlike)
 router.delete('/deletepostlilke', security, deletepostlike)
-router.get('/getuserpost', getuserpost)
+router.get('/getuserpost', security, getuserpost)
 
 module.exports = router;    

@@ -5,6 +5,7 @@ const Users = require('../Models/Users');
 const Postlike = require('../Models/Postlike');
 const Blockmodel = require('../Models/Blockmodel');
 const Posts = require('../Models/file');
+const { blockuser } = require('../Helpers/Blockuser');
 
 
 exports.postlike = async (req, res) => {
@@ -13,16 +14,16 @@ exports.postlike = async (req, res) => {
         // console.log(postid);
         const user = req.user;
         const userId = user._id;
+        // console.log("UserId", userId);
         const post = await Posts.findById(postid);
         if (!post) {
             return res.status(400).json({ status: false, message: 'Post not found', data: {} });
         }
         const exitsingLike = await Postlike.findOne({ postid, likedBy: user._id });
         const file = await Posts.findById(postid);
-        // console.log("user: " + file.userId);
-        const blockusercheck = await Blockmodel.findOne({
-            blockedBy: file.userId
-        })
+
+        const blockusercheck = await blockuser(file.userId, userId);
+        console.log("blockusercheck", blockusercheck);
         if (blockusercheck) {
             return res.status(400).json({ status: false, message: 'User Blocked', data: {} });
         }
@@ -74,7 +75,6 @@ exports.postlike = async (req, res) => {
     }
 
 }
-
 exports.deletepostlike = async (req, res) => {
     try {
         const { postId } = req.query.id;

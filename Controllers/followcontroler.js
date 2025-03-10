@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Users = require('../Models/Users');
 const FollowModel = require('../Models/FollowModel');
+const { blockuser } = require('../Helpers/Blockuser');
 
 exports.followUser = async (req, res, next) => {
     try {
@@ -18,6 +19,13 @@ exports.followUser = async (req, res, next) => {
             return res.status(400).json({ message: "Cannot follow yourself" });
         }
         const userExists = await FollowModel.findOne({ UserID: userID });
+        const blockusercheck = await blockuser(userToFollow, userID);
+
+        console.log("blockusercheck", blockusercheck);
+        if (blockusercheck) {
+            return res.status(400).json({ message: "User is blocked" });
+        }
+
         if (userExists) {
             return res.status(400).json({ message: "User already following" });
         }
